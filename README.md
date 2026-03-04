@@ -1,64 +1,150 @@
 # 🤖 Autonomous Financial Research Agent
 
-## 📌 Project Overview
-This repository features an **Autonomous Multi-Agent System** that automates end-to-end financial market research. Built with the **CrewAI** framework and **Gemini 2.0 Flash**, the system deploys a "crew" of specialized AI agents that collaborate to analyze stock trends, identify risks, and generate investor-ready reports.
+<div align="center">
 
-### **The Agentic Advantage**
-Unlike standard LLM prompts, this system utilizes **Agentic Workflows**. The agents operate in a feedback loop: they research, evaluate data quality, and then synthesize a final report. This multi-step reasoning allows for significantly higher accuracy and professional depth.
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![CrewAI](https://img.shields.io/badge/CrewAI-Multi--Agent-FF4B4B?style=for-the-badge)
+![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash_Lite-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+**A fully autonomous multi-agent system that conducts end-to-end financial market research — from raw company name to investor-ready report — with zero human intervention.**
+
+</div>
+
+---
+
+## ⚡ Results at a Glance
+
+| Metric | Detail |
+|---|---|
+| 🤖 Agents | 2 specialized (Senior Financial Researcher + Technical Financial Writer) |
+| 🔄 Orchestration | `Process.sequential` — Writer is blocked until Researcher completes |
+| 🎯 LLM | `gemini/gemini-2.5-flash-lite` via CrewAI's LLM wrapper |
+| ⚙️ Dynamic Input | Single `{company}` variable — swap any ticker, no code changes |
+| 📝 Output | 3-paragraph investor-ready Markdown report with BUY/HOLD/SELL thesis |
+| 🧪 Test Case | NVIDIA — growth drivers, risk factors, and recommendation generated autonomously |
+
+---
+
+## 🧠 Why Multi-Agent Over a Single Prompt?
+
+A single LLM prompt produces shallow, generic financial summaries. This system separates **research** from **writing** into two distinct agent personas — each with its own role, goal, and backstory. The quality difference is significant:
+
+```
+Single Prompt:       "Analyze NVIDIA" → Generic 2-paragraph summary
+
+This System:         Researcher Agent  → Identifies 3 growth drivers + 3 risks
+                           ↓ (sequential handoff — writer waits for validated output)
+                     Writer Agent      → Transforms research into structured
+                                         investor-grade Markdown report
+```
+
+Role specialization plus sequential enforcement means the Writer never hallucinates research it hasn't received.
+
+---
+
+## 🏗️ Agent Architecture
+
+```python
+# Agent 1: Researcher
+researcher = Agent(
+    role='Senior Financial Researcher',
+    goal='Uncover deep insights into {company} and its 2025 market outlook.',
+    backstory="World-class financial analyst specializing in emerging market trends.",
+    llm=gemini_flash
+)
+
+# Agent 2: Writer
+writer = Agent(
+    role='Technical Financial Writer',
+    goal='Synthesize research findings into a clear, investor-ready report.',
+    backstory="Seasoned business journalist transforming raw data into executive narratives.",
+    llm=gemini_flash
+)
+
+# Sequential crew — researcher must finish before writer starts
+fin_crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, writing_task],
+    process=Process.sequential
+)
+```
 
 ---
 
 ## 🛠️ Tech Stack
-* **Framework:** CrewAI
-* **Model:** Google Gemini 2.0 Flash
-* **Language:** Python 3.10+
-* **Environment Management:** `python-dotenv` for secure API key handling.
+
+| Layer | Technology |
+|---|---|
+| Multi-Agent Framework | CrewAI (`Agent`, `Task`, `Crew`, `Process`) |
+| LLM | `gemini/gemini-2.5-flash-lite` (via CrewAI `LLM` wrapper) |
+| Orchestration Pattern | `Process.sequential` — strict task dependency enforcement |
+| Environment | `python-dotenv` for secure API key management |
+| Language | Python 3.10+ |
 
 ---
 
-## 🛠️ System Architecture
-The system divides labor between two distinct AI personas:
+## 📊 Live Execution: NVIDIA Case Study
 
-1.  **Senior Financial Researcher:** Tasked with identifying market drivers (e.g., AI compute demand, automotive expansion) and evaluating competitive risks.
-2.  **Technical Financial Writer:** Tasked with transforming raw research data into a polished, structured investment summary.
+**Input:** `fin_crew.kickoff(inputs={'company': 'NVIDIA'})`
 
----
+The Researcher agent autonomously identified:
 
-## 📊 Live Execution Results: NVIDIA (Case Study)
-The system was tested with a real-world scenario researching **NVIDIA**. The agents successfully identified:
+**Growth Drivers identified:**
+- AI/Accelerated Computing dominance (Blackwell GPU architecture)
+- Automotive sector expansion (NVIDIA DRIVE platform)
+- Sustained gaming ecosystem revenue (RTX/DLSS)
 
-* **Growth Drivers:** Dominance in AI/Accelerated Computing (Blackwell architecture), expansion in the Automotive sector (DRIVE platform), and sustained innovation in Gaming (RTX/DLSS).
-* **Market Risks:** Intensifying competition from hyperscalers (custom silicon), supply chain vulnerabilities (TSMC reliance), and semiconductor industry cyclicality.
+**Risk Factors identified:**
+- Hyperscaler custom silicon competition (Google TPU, AWS Trainium)
+- TSMC supply chain concentration risk
+- Semiconductor industry cyclicality
 
-### **Investment Thesis Archetypes**
-The agent is capable of generating different outlooks based on the data retrieved. Below are the three primary archetypes produced by the agent:
+**Writer output:** A polished 3-paragraph Markdown investment summary with a BUY/HOLD/SELL recommendation — formatted for executive stakeholders.
 
-| BUY Recommendation | HOLD Recommendation | SELL Recommendation |
-| :--- | :--- | :--- |
-| ![Buy Recommendation](images/buy_paragraph.png) | ![Hold Recommendation](images/hold_paragraph.png) | ![Sell Recommendation](images/sell_paragraph.png) |
-
----
-
-## 🧠 Key Technical Highlights
-* **Multi-Agent Orchestration:** Managed complex state and task delegation between multiple agents using CrewAI.
-* **Variable Injection:** Implemented dynamic `{company}` placeholders, allowing the system to scale across different target stocks without code changes.
-* **Sequential Logic:** Designed a dependent pipeline where the Writer agent only begins after the Researcher provides a validated data payload.
+| BUY Scenario | HOLD Scenario | SELL Scenario |
+|---|---|---|
+| ![Buy](images/buy_paragraph.png) | ![Hold](images/hold_paragraph.png) | ![Sell](images/sell_paragraph.png) |
 
 ---
 
-## 🚀 Installation & Usage
-1.  **Clone the Repo:**
-    ```bash
-    git clone https://github.com/Rahilshah01/autonomous-financial-research-agent.git
-    ```
-2.  **Install Dependencies:**
-    ```bash
-    pip install crewai google-genai python-dotenv
-    ```
-3.  **Setup Environment:**
-    Create a `.env` file and add: `GEMINI_API_KEY=your_api_key_here`
-4.  **Run the Crew:**
-    ```bash
-    python main.py
-    ```
+## 🔑 Key Engineering Decisions
+
+- **Why `Process.sequential`?** The Writer agent must receive validated research before drafting. Sequential enforcement prevents the Writer from generating fabricated analysis — a critical guardrail in financial contexts.
+- **Why role + backstory per agent?** CrewAI agents perform significantly better with a defined persona. The "world-class analyst" backstory steers the Researcher toward structured, data-driven output; the "journalist" backstory pushes the Writer toward narrative clarity.
+- **Why `{company}` variable injection?** One-line change to `kickoff(inputs={'company': '...'})` re-targets the entire pipeline to any publicly traded company — no prompt editing, no code changes.
+
 ---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Clone
+git clone https://github.com/Rahilshah01/autonomous-financial-research-agent.git
+cd autonomous-financial-research-agent
+
+# 2. Install
+pip install crewai python-dotenv
+
+# 3. Set API key
+echo "GEMINI_API_KEY=your_key_here" > .env
+
+# 4. Run (change company in kickoff inputs if desired)
+python main.py
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+autonomous-financial-research-agent/
+├── main.py          # Agents, tasks, crew definition + kickoff
+├── images/          # Sample output screenshots (buy/hold/sell)
+├── .env.example
+├── requirements.txt
+└── README.md
+```
+
+---
+
+*Built by [Rahil Shah](https://rahil-shah-portfolio.vercel.app/) · MS Data Science @ Stevens Institute of Technology*
